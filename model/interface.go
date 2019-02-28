@@ -252,6 +252,14 @@ const (
 	NullStateNotNull
 )
 
+type StoreOption int
+
+const (
+	StoreOptionNone StoreOption = iota
+	StoreOptionVirtual
+	StoreOptionStored
+)
+
 // Length describes the possible length constraint of a column
 type Length interface {
 	HasDecimal() bool
@@ -280,6 +288,14 @@ type TableColumn interface {
 	HasLength() bool
 	Length() Length
 	SetLength(Length) TableColumn
+	IsGeneratedAlways() bool
+	SetGeneratedAlways(bool) TableColumn
+	HasGeneratedExpr() bool
+	GeneratedExpr() string
+	SetGeneratedExpr(string) TableColumn
+	HasStoreOption() bool
+	StoreOption() StoreOption
+	SetStoreOption(StoreOption) TableColumn
 	HasCharacterSet() bool
 	CharacterSet() string
 	SetCharacterSet(string) TableColumn
@@ -346,25 +362,28 @@ type defaultValue struct {
 }
 
 type tablecol struct {
-	tableID      string
-	name         string
-	typ          ColumnType
-	length       Length
-	nullstate    NullState
-	charset      maybeString
-	collation    maybeString
-	defaultValue defaultValue
-	comment      maybeString
-	autoUpdate   maybeString
-	enumValues   []string
-	setValues    []string
-	autoincr     bool
-	binary       bool
-	key          bool
-	primary      bool
-	unique       bool
-	unsigned     bool
-	zerofill     bool
+	tableID         string
+	name            string
+	typ             ColumnType
+	length          Length
+	generatedAlways bool
+	generatedExpr   maybeString
+	storeOption     StoreOption
+	nullstate       NullState
+	charset         maybeString
+	collation       maybeString
+	defaultValue    defaultValue
+	comment         maybeString
+	autoUpdate      maybeString
+	enumValues      []string
+	setValues       []string
+	autoincr        bool
+	binary          bool
+	key             bool
+	primary         bool
+	unique          bool
+	unsigned        bool
+	zerofill        bool
 }
 
 // Database represents a database definition

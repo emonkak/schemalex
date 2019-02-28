@@ -259,6 +259,42 @@ func (t *tablecol) SetValues() chan string {
 	return ch
 }
 
+func (t *tablecol) IsGeneratedAlways() bool {
+	return t.generatedAlways
+}
+
+func (t *tablecol) SetGeneratedAlways(generatedAlways bool) TableColumn {
+	t.generatedAlways = generatedAlways
+	return t
+}
+
+func (t *tablecol) HasGeneratedExpr() bool {
+	return t.generatedExpr.Valid
+}
+
+func (t *tablecol) GeneratedExpr() string {
+	return t.generatedExpr.Value
+}
+
+func (t *tablecol) SetGeneratedExpr(generatedExpr string) TableColumn {
+	t.generatedExpr.Valid = true
+	t.generatedExpr.Value = generatedExpr
+	return t
+}
+
+func (t *tablecol) HasStoreOption() bool {
+	return t.storeOption != StoreOptionNone
+}
+
+func (t *tablecol) StoreOption() StoreOption {
+	return t.storeOption
+}
+
+func (t *tablecol) SetStoreOption(storeOption StoreOption) TableColumn {
+	t.storeOption = storeOption
+	return t
+}
+
 func (t *tablecol) NativeLength() Length {
 	// I referred to perl: SQL::Translator::Parser::MySQL#normalize_field https://metacpan.org/source/SQL::Translator::Parser::MySQL#L1072
 	unsigned := 0

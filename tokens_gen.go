@@ -44,6 +44,8 @@ const (
 	EQUAL         // =
 	COMMENT_IDENT // // /*   */, --, #
 	ACTION
+	ALWAYS
+	AS
 	AUTO_INCREMENT
 	AVG_ROW_LENGTH
 	BIGINT
@@ -90,6 +92,7 @@ const (
 	FOREIGN
 	FULL
 	FULLTEXT
+	GENERATED
 	HASH
 	IF
 	INDEX
@@ -132,6 +135,7 @@ const (
 	STATS_PERSISTENT
 	STATS_SAMPLE_PAGES
 	STORAGE
+	STORED
 	TABLE
 	TABLESPACE
 	TEMPORARY
@@ -150,6 +154,7 @@ const (
 	USING
 	VARBINARY
 	VARCHAR
+	VIRTUAL
 	YEAR
 	ZEROFILL
 	ASC
@@ -159,6 +164,8 @@ const (
 
 var keywordIdentMap = map[string]TokenType{
 	"ACTION":             ACTION,
+	"ALWAYS":             ALWAYS,
+	"AS":                 AS,
 	"AUTO_INCREMENT":     AUTO_INCREMENT,
 	"AVG_ROW_LENGTH":     AVG_ROW_LENGTH,
 	"BIGINT":             BIGINT,
@@ -205,6 +212,7 @@ var keywordIdentMap = map[string]TokenType{
 	"FOREIGN":            FOREIGN,
 	"FULL":               FULL,
 	"FULLTEXT":           FULLTEXT,
+	"GENERATED":          GENERATED,
 	"HASH":               HASH,
 	"IF":                 IF,
 	"INDEX":              INDEX,
@@ -247,6 +255,7 @@ var keywordIdentMap = map[string]TokenType{
 	"STATS_PERSISTENT":   STATS_PERSISTENT,
 	"STATS_SAMPLE_PAGES": STATS_SAMPLE_PAGES,
 	"STORAGE":            STORAGE,
+	"STORED":             STORED,
 	"TABLE":              TABLE,
 	"TABLESPACE":         TABLESPACE,
 	"TEMPORARY":          TEMPORARY,
@@ -265,6 +274,7 @@ var keywordIdentMap = map[string]TokenType{
 	"USING":              USING,
 	"VARBINARY":          VARBINARY,
 	"VARCHAR":            VARCHAR,
+	"VIRTUAL":            VIRTUAL,
 	"YEAR":               YEAR,
 	"ZEROFILL":           ZEROFILL,
 	"ASC":                ASC,
@@ -318,6 +328,10 @@ func (t TokenType) String() string {
 		return "COMMENT_IDENT"
 	case ACTION:
 		return "ACTION"
+	case ALWAYS:
+		return "ALWAYS"
+	case AS:
+		return "AS"
 	case AUTO_INCREMENT:
 		return "AUTO_INCREMENT"
 	case AVG_ROW_LENGTH:
@@ -410,6 +424,8 @@ func (t TokenType) String() string {
 		return "FULL"
 	case FULLTEXT:
 		return "FULLTEXT"
+	case GENERATED:
+		return "GENERATED"
 	case HASH:
 		return "HASH"
 	case IF:
@@ -494,6 +510,8 @@ func (t TokenType) String() string {
 		return "STATS_SAMPLE_PAGES"
 	case STORAGE:
 		return "STORAGE"
+	case STORED:
+		return "STORED"
 	case TABLE:
 		return "TABLE"
 	case TABLESPACE:
@@ -530,6 +548,8 @@ func (t TokenType) String() string {
 		return "VARBINARY"
 	case VARCHAR:
 		return "VARCHAR"
+	case VIRTUAL:
+		return "VIRTUAL"
 	case YEAR:
 		return "YEAR"
 	case ZEROFILL:

@@ -30,11 +30,14 @@ const (
 
 	coloptEverythingElse
 
-	coloptNull          = coloptEverythingElse
-	coloptDefault       = coloptEverythingElse
-	coloptAutoIncrement = coloptEverythingElse
-	coloptKey           = coloptEverythingElse
-	coloptComment       = coloptEverythingElse
+	coloptGeneratedAlways = coloptEverythingElse
+	coloptAs              = coloptEverythingElse
+	coloptStoreOption     = coloptEverythingElse
+	coloptNull            = coloptEverythingElse
+	coloptDefault         = coloptEverythingElse
+	coloptAutoIncrement   = coloptEverythingElse
+	coloptKey             = coloptEverythingElse
+	coloptComment         = coloptEverythingElse
 )
 
 const (
@@ -813,7 +816,7 @@ func (p *Parser) parseCreateTableOptions(ctx *parseCtx, table model.Table) error
 // seem to state otherwise.
 //
 func (p *Parser) parseColumnOption(ctx *parseCtx, col model.TableColumn, f int) error {
-	f = f | coloptNull | coloptDefault | coloptAutoIncrement | coloptKey | coloptComment
+	f = f | coloptGeneratedAlways | coloptAs | coloptStoreOption | coloptNull | coloptDefault | coloptAutoIncrement | coloptKey | coloptComment
 	pos := 0
 	check := func(_f int) bool {
 		if pos > _f {
@@ -883,9 +886,13 @@ func (p *Parser) parseColumnOption(ctx *parseCtx, col model.TableColumn, f int) 
 				l.SetDecimal(tscale)
 				col.SetLength(l)
 			} else if check(coloptEnumValues) {
-				ctx.parseSetOrEnum(col.SetEnumValues)
+				if err := ctx.parseSetOrEnum(col.SetEnumValues); err != nil {
+					return err
+				}
 			} else if check(coloptSetValues) {
-				ctx.parseSetOrEnum(col.SetSetValues)
+				if err := ctx.parseSetOrEnum(col.SetSetValues); err != nil {
+					return err
+				}
 			} else {
 				return newParseError(ctx, t, "cannot apply coloptSize, coloptDecimalSize, coloptDecimalOptionalSize, coloptEnumValues, coloptSetValues")
 			}
@@ -916,6 +923,34 @@ func (p *Parser) parseColumnOption(ctx *parseCtx, col model.TableColumn, f int) 
 				return newParseError(ctx, t, "cannot apply BINARY")
 			}
 			col.SetBinary(true)
+		case GENERATED:
+			if !check(coloptGeneratedAlways) {
+				return newParseError(ctx, t, "cannot apply GENERATED ALWAYS")
+			}
+			ctx.skipWhiteSpaces()
+			switch t := ctx.next(); t.Type {
+			case ALWAYS:
+				col.SetGeneratedAlways(true)
+			default:
+				return newParseError(ctx, t, "expected ALWAYS")
+			}
+		case AS:
+			if !check(coloptAs) {
+				return newParseError(ctx, t, "cannot apply AS")
+			}
+			if err := ctx.parseGeneratedColumn(col); err != nil {
+				return err
+			}
+		case VIRTUAL:
+			if !check(coloptStoreOption) {
+				return newParseError(ctx, t, "cannot apply VIRTUAL")
+			}
+			col.SetStoreOption(model.StoreOptionVirtual)
+		case STORED:
+			if !check(coloptStoreOption) {
+				return newParseError(ctx, t, "cannot apply STORED")
+			}
+			col.SetStoreOption(model.StoreOptionStored)
 		case NOT:
 			if !check(coloptNull) {
 				return newParseError(ctx, t, "cannot apply NOT NULL")
@@ -1030,12 +1065,59 @@ OUTER:
 		switch t := ctx.next(); t.Type {
 		case COMMA:
 		case RPAREN:
+	
 			break OUTER
 		default:
 			return newParseError(ctx, t, "expected COMMA")
 		}
 	}
 	setter(values)
+	return nil
+}
+
+func (ctx *parseCtx) parseGeneratedColumn(col model.TableColumn) error {
+	expr := ""
+	depth := 0;
+
+	ctx.skipWhiteSpaces()
+
+	t := ctx.next()
+
+	if t.Type != LPAREN {
+		return newParseError(ctx, t, "expected LPAREN")
+	}
+
+OUTER:
+	for {
+		t = ctx.next()
+
+		switch t.Type {
+		case LPAREN:
+			depth += 1
+			expr += t.Value
+		case RPAREN:
+			if (depth == 0) {
+				break OUTER
+			}
+			depth -= 1
+			expr += t.Value
+		case BACKTICK_IDENT:
+			expr += "`" + t.Value + "`"
+		case SINGLE_QUOTE_IDENT:
+			expr += "'" + t.Value + "'"
+		case DOUBLE_QUOTE_IDENT:
+			expr += "\"" + t.Value + "\""
+		default:
+			expr += t.Value
+		}
+	}
+
+	if depth != 0 {
+		return newParseError(ctx, t, "expected RPAREN")
+	}
+
+	col.SetGeneratedExpr(expr)
+
 	return nil
 }
 

@@ -273,6 +273,26 @@ func formatTableColumn(ctx *fmtCtx, col model.TableColumn) error {
 		buf.WriteString(col.AutoUpdate())
 	}
 
+	if col.IsGeneratedAlways() {
+		buf.WriteString(" GENERATED ALWAYS")
+	}
+
+	if col.HasGeneratedExpr() {
+		buf.WriteString(" AS (")
+		buf.WriteString(col.GeneratedExpr())
+		buf.WriteByte(')')
+	}
+
+	if col.HasStoreOption() {
+		buf.WriteByte(' ')
+		switch col.StoreOption() {
+		case model.StoreOptionVirtual:
+			buf.WriteString("VIRTUAL")
+		case model.StoreOptionStored:
+			buf.WriteString("STORED")
+		}
+	}
+
 	if n := col.NullState(); n != model.NullStateNone {
 		buf.WriteByte(' ')
 		switch n {
