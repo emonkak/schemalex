@@ -147,8 +147,8 @@ primary key (id, c)
 		Expect: "CREATE TABLE `hoge` (\n`foo` DECIMAL (32,30) DEFAULT NULL\n)",
 	})
 	parse("UniqueKeyWithConstraint", &Spec{
-		Input:  "CREATE TABLE `fuga` ( `id` INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT `symbol` UNIQUE KEY `uniq_id` USING BTREE (`id`) )",
-		Expect: "CREATE TABLE `fuga` (\n`id` INT (11) NOT NULL AUTO_INCREMENT,\nCONSTRAINT `symbol` UNIQUE KEY `uniq_id` USING BTREE (`id`)\n)",
+		Input:  "CREATE TABLE `fuga` ( `id` INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT `symbol` UNIQUE KEY `uniq_id` (`id`) )",
+		Expect: "CREATE TABLE `fuga` (\n`id` INT (11) NOT NULL AUTO_INCREMENT,\nCONSTRAINT `symbol` UNIQUE KEY `uniq_id` (`id`)\n)",
 	})
 	parse("DropTableIfExists", &Spec{
 		Input:  "DROP TABLE IF EXISTS `konboi_bug`; CREATE TABLE foo(`id` INT)",
@@ -230,9 +230,9 @@ primary key (id, c)
 			"`expires_at` DATETIME (6) DEFAULT NULL,\n" +
 			"`account_id` INT (11) NOT NULL,\n" +
 			"`app_id` INT (11) NOT NULL,\n" +
-			"PRIMARY KEY USING BTREE (`id`),\n" +
-			"UNIQUE KEY `socialaccount_socialtoken_app_id_account_id_fca4e0ac_uniq` USING BTREE (`app_id`, `account_id`),\n" +
-			"KEY `socialaccount_social_account_id_951f210e_fk_socialacc` USING BTREE (`account_id`),\n" +
+			"PRIMARY KEY (`id`) USING BTREE,\n" +
+			"UNIQUE KEY `socialaccount_socialtoken_app_id_account_id_fca4e0ac_uniq` (`app_id`, `account_id`) USING BTREE,\n" +
+			"KEY `socialaccount_social_account_id_951f210e_fk_socialacc` (`account_id`) USING BTREE,\n" +
 			"CONSTRAINT `socialaccount_social_account_id_951f210e_fk_socialacc` FOREIGN KEY (`account_id`) REFERENCES `socialaccount_socialaccount` (`id`),\n" +
 			"KEY `socialaccount_social_app_id_636a42d7_fk_socialacc` (`app_id`),\n" +
 			"CONSTRAINT `socialaccount_social_app_id_636a42d7_fk_socialacc` FOREIGN KEY (`app_id`) REFERENCES `socialaccount_socialapp` (`id`)\n" +

@@ -370,13 +370,6 @@ func formatIndex(ctx *fmtCtx, index model.Index) error {
 		buf.WriteString(util.Backquote(index.Name()))
 	}
 
-	switch {
-	case index.IsBtree():
-		buf.WriteString(" USING BTREE")
-	case index.IsHash():
-		buf.WriteString(" USING HASH")
-	}
-
 	buf.WriteString(" (")
 	ch := index.Columns()
 	lch := len(ch)
@@ -406,6 +399,15 @@ func formatIndex(ctx *fmtCtx, index model.Index) error {
 		i++
 	}
 	buf.WriteByte(')')
+
+	if !index.IsForeignKey() {
+		switch {
+		case index.IsBtree():
+			buf.WriteString(" USING BTREE")
+		case index.IsHash():
+			buf.WriteString(" USING HASH")
+		}
+	}
 
 	if ref := index.Reference(); ref != nil {
 		newctx := ctx.clone()
