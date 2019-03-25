@@ -100,11 +100,11 @@ primary key (id, c)
 	})
 	parse("WithKeyAndIndex", &Spec{
 		Input:  "create table hoge ( `id` bigint unsigned not null auto_increment,\n `c` varchar(20) not null,\nKEY (`id`), INDEX (`c`)\n)",
-		Expect: "CREATE TABLE `hoge` (\n`id` BIGINT (20) UNSIGNED NOT NULL AUTO_INCREMENT,\n`c` VARCHAR (20) NOT NULL,\nINDEX (`id`),\nINDEX (`c`)\n)",
+		Expect: "CREATE TABLE `hoge` (\n`id` BIGINT (20) UNSIGNED NOT NULL AUTO_INCREMENT,\n`c` VARCHAR (20) NOT NULL,\nKEY (`id`),\nKEY (`c`)\n)",
 	})
 	parse("WithUniqueKeyPrimaryKey", &Spec{
 		Input:  "create table hoge ( `id` bigint unsigned not null auto_increment,\n `c` varchar(20) not null,\nUNIQUE INDEX `uniq_id` (`id`, `c`),\n PRIMARY KEY (`id`)\n )",
-		Expect: "CREATE TABLE `hoge` (\n`id` BIGINT (20) UNSIGNED NOT NULL AUTO_INCREMENT,\n`c` VARCHAR (20) NOT NULL,\nUNIQUE INDEX `uniq_id` (`id`, `c`),\nPRIMARY KEY (`id`)\n)",
+		Expect: "CREATE TABLE `hoge` (\n`id` BIGINT (20) UNSIGNED NOT NULL AUTO_INCREMENT,\n`c` VARCHAR (20) NOT NULL,\nUNIQUE KEY `uniq_id` (`id`, `c`),\nPRIMARY KEY (`id`)\n)",
 	})
 	parse("WithBsasicForeignKey", &Spec{
 		Input:  "create table hoge ( `id` bigint unsigned not null auto_increment,\n `c` varchar(20) not null,\nFOREIGN KEY `fk_c` (`c`) )",
@@ -112,7 +112,7 @@ primary key (id, c)
 	})
 	parse("WithFulltextIndex", &Spec{
 		Input:  "create table hoge (txt TEXT, fulltext ft_idx(txt))",
-		Expect: "CREATE TABLE `hoge` (\n`txt` TEXT,\nFULLTEXT INDEX `ft_idx` (`txt`)\n)",
+		Expect: "CREATE TABLE `hoge` (\n`txt` TEXT,\nFULLTEXT KEY `ft_idx` (`txt`)\n)",
 	})
 	parse("WithSimpleReferenceForeignKey", &Spec{
 		Input:  "create table hoge ( `id` bigint unsigned not null auto_increment,\n `c` varchar(20) not null,\nFOREIGN KEY `fk_c` (`c`) REFERENCES `fuga` (`id`) )",
@@ -148,7 +148,7 @@ primary key (id, c)
 	})
 	parse("UniqueKeyWithConstraint", &Spec{
 		Input:  "CREATE TABLE `fuga` ( `id` INTEGER NOT NULL AUTO_INCREMENT, CONSTRAINT `symbol` UNIQUE KEY `uniq_id` USING BTREE (`id`) )",
-		Expect: "CREATE TABLE `fuga` (\n`id` INT (11) NOT NULL AUTO_INCREMENT,\nCONSTRAINT `symbol` UNIQUE INDEX `uniq_id` USING BTREE (`id`)\n)",
+		Expect: "CREATE TABLE `fuga` (\n`id` INT (11) NOT NULL AUTO_INCREMENT,\nCONSTRAINT `symbol` UNIQUE KEY `uniq_id` USING BTREE (`id`)\n)",
 	})
 	parse("DropTableIfExists", &Spec{
 		Input:  "DROP TABLE IF EXISTS `konboi_bug`; CREATE TABLE foo(`id` INT)",
@@ -164,7 +164,7 @@ primary key (id, c)
 	})
 	parse("KeyNormalizedToIndex", &Spec{
 		Input:  "CREATE TABLE `foo` (col TEXT, KEY col_idx (col(196)))",
-		Expect: "CREATE TABLE `foo` (\n`col` TEXT,\nINDEX `col_idx` (`col`(196))\n)",
+		Expect: "CREATE TABLE `foo` (\n`col` TEXT,\nKEY `col_idx` (`col`(196))\n)",
 	})
 	parse("CreateTableLike", &Spec{
 		Input:  "CREATE TABLE foo LIKE bar",
@@ -178,12 +178,12 @@ primary key (id, c)
 	parse("ColumnOptionCommentPrimaryKey1", &Spec{
 		// see https://github.com/schemalex/schemalex/pull/40
 		Input:  "CREATE TABLE `test` (\n`id` int(11) PRIMARY KEY COMMENT 'aaa' NOT NULL,\nhoge int default 1 not null COMMENT 'bbb' UNIQUE\n);",
-		Expect: "CREATE TABLE `test` (\n`id` INT (11) NOT NULL COMMENT 'aaa',\n`hoge` INT (11) NOT NULL DEFAULT 1 COMMENT 'bbb',\nPRIMARY KEY (`id`),\nUNIQUE INDEX `hoge` (`hoge`)\n)",
+		Expect: "CREATE TABLE `test` (\n`id` INT (11) NOT NULL COMMENT 'aaa',\n`hoge` INT (11) NOT NULL DEFAULT 1 COMMENT 'bbb',\nPRIMARY KEY (`id`),\nUNIQUE KEY `hoge` (`hoge`)\n)",
 	})
 	parse("ColumnOptionCommentPrimaryKey2", &Spec{
 		// see https://github.com/schemalex/schemalex/pull/40
 		Input:  "CREATE TABLE `test` (\n`id` int(11) COMMENT 'aaa' PRIMARY KEY NOT NULL,\nhoge int default 1 UNIQUE not null COMMENT 'bbb'\n);",
-		Expect: "CREATE TABLE `test` (\n`id` INT (11) NOT NULL COMMENT 'aaa',\n`hoge` INT (11) NOT NULL DEFAULT 1 COMMENT 'bbb',\nPRIMARY KEY (`id`),\nUNIQUE INDEX `hoge` (`hoge`)\n)",
+		Expect: "CREATE TABLE `test` (\n`id` INT (11) NOT NULL COMMENT 'aaa',\n`hoge` INT (11) NOT NULL DEFAULT 1 COMMENT 'bbb',\nPRIMARY KEY (`id`),\nUNIQUE KEY `hoge` (`hoge`)\n)",
 	})
 	parse("Enum", &Spec{
 		Input:  "CREATE TABLE `test` (\n`status` ENUM('on', 'off') NOT NULL DEFAULT 'off'\n);",
@@ -231,10 +231,10 @@ primary key (id, c)
 			"`account_id` INT (11) NOT NULL,\n" +
 			"`app_id` INT (11) NOT NULL,\n" +
 			"PRIMARY KEY USING BTREE (`id`),\n" +
-			"UNIQUE INDEX `socialaccount_socialtoken_app_id_account_id_fca4e0ac_uniq` USING BTREE (`app_id`, `account_id`),\n" +
-			"INDEX `socialaccount_social_account_id_951f210e_fk_socialacc` USING BTREE (`account_id`),\n" +
+			"UNIQUE KEY `socialaccount_socialtoken_app_id_account_id_fca4e0ac_uniq` USING BTREE (`app_id`, `account_id`),\n" +
+			"KEY `socialaccount_social_account_id_951f210e_fk_socialacc` USING BTREE (`account_id`),\n" +
 			"CONSTRAINT `socialaccount_social_account_id_951f210e_fk_socialacc` FOREIGN KEY (`account_id`) REFERENCES `socialaccount_socialaccount` (`id`),\n" +
-			"INDEX `socialaccount_social_app_id_636a42d7_fk_socialacc` (`app_id`),\n" +
+			"KEY `socialaccount_social_app_id_636a42d7_fk_socialacc` (`app_id`),\n" +
 			"CONSTRAINT `socialaccount_social_app_id_636a42d7_fk_socialacc` FOREIGN KEY (`app_id`) REFERENCES `socialaccount_socialapp` (`id`)\n" +
 			") ENGINE = InnoDB, DEFAULT CHARACTER SET = utf8mb4, DEFAULT COLLATE = utf8mb4_unicode_ci, ROW_FORMAT = DYNAMIC",
 	})
@@ -262,7 +262,7 @@ primary key (id, c)
 			"  KEY `user_id_idx` (`user_id`),\r\n" +
 			"  CONSTRAINT `some_table__user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE SET NULL\r\n" +
 			") ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;",
-		Expect: "CREATE TABLE `some_table` (\n`id` INT (10) UNSIGNED NOT NULL AUTO_INCREMENT,\n`user_id` VARCHAR (32) DEFAULT NULL,\n`context` JSON DEFAULT NULL,\n`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,\nPRIMARY KEY (`id`),\nINDEX `created_at` (`created_at` DESC),\nINDEX `user_id_idx` (`user_id`),\nINDEX `some_table__user_id` (`user_id`),\nCONSTRAINT `some_table__user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE SET NULL\n) ENGINE = InnoDB, AUTO_INCREMENT = 19, DEFAULT CHARACTER SET = utf8mb4, DEFAULT COLLATE = utf8mb4_0900_ai_ci",
+		Expect: "CREATE TABLE `some_table` (\n`id` INT (10) UNSIGNED NOT NULL AUTO_INCREMENT,\n`user_id` VARCHAR (32) DEFAULT NULL,\n`context` JSON DEFAULT NULL,\n`created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,\nPRIMARY KEY (`id`),\nKEY `created_at` (`created_at` DESC),\nKEY `user_id_idx` (`user_id`),\nKEY `some_table__user_id` (`user_id`),\nCONSTRAINT `some_table__user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE SET NULL\n) ENGINE = InnoDB, AUTO_INCREMENT = 19, DEFAULT CHARACTER SET = utf8mb4, DEFAULT COLLATE = utf8mb4_0900_ai_ci",
 	})
 	parse("DefaultNow", &Spec{
 		Input:  "create table `test_log` (`created_at` DATETIME default NOW())",

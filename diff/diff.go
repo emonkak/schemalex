@@ -486,7 +486,7 @@ func dropTableIndexes(ctx *alterCtx, dst io.Writer) (int64, error) {
 		}
 		buf.WriteString("ALTER TABLE `")
 		buf.WriteString(ctx.from.Name())
-		buf.WriteString("` DROP INDEX `")
+		buf.WriteString("` DROP KEY `")
 		if !indexStmt.HasName() {
 			buf.WriteString(indexStmt.Symbol())
 		} else {

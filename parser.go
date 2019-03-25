@@ -1110,7 +1110,7 @@ func (p *Parser) parseColumnIndexFullTextKey(ctx *parseCtx, index model.Index) e
 
 	// optional INDEX
 	ctx.skipWhiteSpaces()
-	if t := ctx.peek(); t.Type == INDEX {
+	if t := ctx.peek(); t.Type == INDEX || t.Type == KEY {
 		ctx.advance()
 	}
 
@@ -1133,7 +1133,7 @@ func (p *Parser) parseColumnIndexSpatialKey(ctx *parseCtx, index model.Index) er
 
 	// optional INDEX
 	ctx.skipWhiteSpaces()
-	if t := ctx.peek(); t.Type == INDEX {
+	if t := ctx.peek(); t.Type == INDEX || t.Type == KEY {
 		ctx.advance()
 	}
 
