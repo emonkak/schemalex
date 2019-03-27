@@ -11,7 +11,10 @@ import (
 
 // NewReference creates a reference constraint
 func NewReference() Reference {
-	return &reference{}
+	return &reference{
+		onDelete: ReferenceOptionRestrict,
+		onUpdate: ReferenceOptionRestrict,
+	}
 }
 
 func (r *reference) ID() string {
