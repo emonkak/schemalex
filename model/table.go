@@ -196,33 +196,6 @@ func (t *table) Normalize() (Table, bool) {
 		if modified {
 			clone = true
 		}
-
-		// if Not defined CONSTRAINT symbol, then resolve
-		// implicitly created INDEX too difficult.
-		// (lestrrat) this comment is confusing. Please add
-		// actual examples somewhere
-		if nidx.IsForeignKey() && nidx.HasSymbol() {
-			// There's a chance the user has already explicitly declared the
-			// index for this constraint. Only add this implicit index if we
-			// haven't seen it before
-			if _, ok := seen[nidx.Symbol()]; !ok {
-				clone = true
-				// add implicitly created INDEX
-				index := NewIndex(IndexKindNormal, t.ID())
-				index.SetName(nidx.Symbol())
-				if nidx.IsBtree() {
-					index.SetType(IndexTypeBtree)
-				} else if nidx.IsHash() {
-					index.SetType(IndexTypeHash)
-				}
-				columns := []IndexColumn{}
-				for c := range nidx.Columns() {
-					columns = append(columns, c)
-				}
-				index.AddColumns(columns...)
-				indexes = append(indexes, index)
-			}
-		}
 		indexes = append(indexes, nidx)
 		seen[nidx.Name()] = struct{}{}
 	}
