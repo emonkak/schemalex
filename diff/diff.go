@@ -526,18 +526,5 @@ func addTableIndexes(ctx *alterCtx, dst io.Writer) (int64, error) {
 		buf.WriteByte(';')
 	}
 
-	for _, indexStmt := range lazy {
-		if buf.Len() > 0 {
-			buf.WriteByte('\n')
-		}
-		buf.WriteString("ALTER TABLE `")
-		buf.WriteString(ctx.from.Name())
-		buf.WriteString("` ADD ")
-		if err := format.SQL(&buf, indexStmt); err != nil {
-			return 0, err
-		}
-		buf.WriteByte(';')
-	}
-
 	return buf.WriteTo(dst)
 }
