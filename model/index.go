@@ -74,12 +74,20 @@ func (stmt *index) Symbol() string {
 	return stmt.symbol.Value
 }
 
+func (stmt *index) Parser() string {
+	return stmt.parser.Value
+}
+
 func (stmt *index) HasName() bool {
 	return stmt.name.Valid
 }
 
 func (stmt *index) HasSymbol() bool {
 	return stmt.symbol.Valid
+}
+
+func (stmt *index) HasParser() bool {
+	return stmt.parser.Valid
 }
 
 func (stmt *index) SetReference(r Reference) Index {
@@ -96,6 +104,12 @@ func (stmt *index) SetName(s string) Index {
 func (stmt *index) SetSymbol(s string) Index {
 	stmt.symbol.Valid = true
 	stmt.symbol.Value = s
+	return stmt
+}
+
+func (stmt *index) SetParser(s string) Index {
+	stmt.parser.Valid = true
+	stmt.parser.Value = s
 	return stmt
 }
 

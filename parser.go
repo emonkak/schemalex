@@ -1204,6 +1204,10 @@ func (p *Parser) parseColumnIndexFullTextKey(ctx *parseCtx, index model.Index) e
 		return err
 	}
 
+	if err := p.parseColumnIndexParser(ctx, index); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1454,6 +1458,31 @@ OUTER:
 	}
 
 	container.AddColumns(cols...)
+	return nil
+}
+
+func (p *Parser) parseColumnIndexParser(ctx *parseCtx, index model.Index) error {
+	ctx.skipWhiteSpaces()
+	if t := ctx.peek(); t.Type != WITH {
+		return nil
+	}
+	ctx.advance()
+
+	ctx.skipWhiteSpaces()
+	switch t := ctx.next(); t.Type {
+	case PARSER:
+		ctx.skipWhiteSpaces()
+		switch t := ctx.next(); t.Type {
+		case BACKTICK_IDENT, IDENT:
+			index.SetParser(t.Value)
+		default:
+			return newParseError(ctx, t, "expected BACKTICK_IDENT or IDENT")
+		}
+		break
+	default:
+		return newParseError(ctx, t, "expected PARSER")
+	}
+
 	return nil
 }
 

@@ -56,12 +56,15 @@ type Index interface {
 	HasType() bool
 	HasName() bool
 	HasSymbol() bool
+	HasParser() bool
 	Name() string
 	Reference() Reference
+	Parser() string
 	SetReference(Reference) Index
 	SetSymbol(string) Index
 	SetType(IndexType) Index
 	SetName(string) Index
+	SetParser(string) Index
 	Symbol() string
 	IsBtree() bool
 	IsHash() bool
@@ -124,6 +127,7 @@ type index struct {
 	columns []IndexColumn
 	// TODO Options.
 	reference Reference
+	parser maybeString
 }
 
 // Reference describes a possible reference from one table to another

@@ -119,6 +119,7 @@ const (
 	NUMERIC
 	ON
 	PACK_KEYS
+	PARSER
 	PARTIAL
 	PASSWORD
 	PRIMARY
@@ -155,6 +156,7 @@ const (
 	VARBINARY
 	VARCHAR
 	VIRTUAL
+	WITH
 	YEAR
 	ZEROFILL
 	ASC
@@ -239,6 +241,7 @@ var keywordIdentMap = map[string]TokenType{
 	"NUMERIC":            NUMERIC,
 	"ON":                 ON,
 	"PACK_KEYS":          PACK_KEYS,
+	"PARSER":             PARSER,
 	"PARTIAL":            PARTIAL,
 	"PASSWORD":           PASSWORD,
 	"PRIMARY":            PRIMARY,
@@ -275,6 +278,7 @@ var keywordIdentMap = map[string]TokenType{
 	"VARBINARY":          VARBINARY,
 	"VARCHAR":            VARCHAR,
 	"VIRTUAL":            VIRTUAL,
+	"WITH":               WITH,
 	"YEAR":               YEAR,
 	"ZEROFILL":           ZEROFILL,
 	"ASC":                ASC,
@@ -478,6 +482,8 @@ func (t TokenType) String() string {
 		return "ON"
 	case PACK_KEYS:
 		return "PACK_KEYS"
+	case PARSER:
+		return "PARSER"
 	case PARTIAL:
 		return "PARTIAL"
 	case PASSWORD:
@@ -550,6 +556,8 @@ func (t TokenType) String() string {
 		return "VARCHAR"
 	case VIRTUAL:
 		return "VIRTUAL"
+	case WITH:
+		return "WITH"
 	case YEAR:
 		return "YEAR"
 	case ZEROFILL:

@@ -409,6 +409,11 @@ func formatIndex(ctx *fmtCtx, index model.Index) error {
 		}
 	}
 
+	if index.HasParser() {
+		buf.WriteString(" WITH PARSER ")
+		buf.WriteString(index.Parser())
+	}
+
 	if ref := index.Reference(); ref != nil {
 		newctx := ctx.clone()
 		newctx.dst = &buf
